@@ -163,6 +163,14 @@ def detail(request, post_id):
     return render(request, 'StudentCompanyViewDetails.html', {'post': post, 'student': std, 'status': len(status)})
 
 
+
+
+def Jaccard(x, y):
+    """returns the jaccard similarity between two lists """
+    intersection_cardinality = len(set.intersection(*[set(x), set(y)]))
+    union_cardinality = len(set.union(*[set(x), set(y)]))
+    return intersection_cardinality / float(union_cardinality)
+
 def internshipApplied(request, post_id):
     std = Student.objects.get(email=request.user.student.email)
     post = Internship.objects.get(id=post_id)
@@ -175,7 +183,15 @@ def internshipApplied(request, post_id):
     student_mob = std.resume.mob
 
     # Add Jacard Similarity Here
-    matching = 50
+    matching = 0
+    x = list(std.resume.skills) #student skills
+    y=  post.skills   #comp skills
+
+    print("the skills of the company internship are: ",y)
+
+    ans = Jaccard(x, y)
+    matching=ans
+
 
     status = "pending"
 

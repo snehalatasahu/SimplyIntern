@@ -4,8 +4,18 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, auth
 from django.http import HttpResponse , JsonResponse
 from .models import Company, Internship, Profile, InternshipAppliedDB
-from student.models import Student
+from student.models import Student,Resume
 from django.contrib import messages
+
+from PIL import Image, ImageDraw, ImageFont
+import pandas as pd
+import os
+from django.core.mail import EmailMultiAlternatives
+
+
+
+
+from django.core.mail import send_mail
  
  
 def signin(request):
@@ -108,6 +118,7 @@ def home(request):
 
 
 def new_post(request):
+    std =Student.objects.order_by('id')
     if request.method == 'POST':
         if request.user.is_authenticated:
             try:
@@ -126,6 +137,8 @@ def new_post(request):
                     newPost = Internship(company=comp, title=title, place=place, duration=duration, stipend=stipend, apply_by=apply_by, no_of_openings=no_of_openings, perks=perks, skills=skills, about_internship=about_internship, who_can_apply=who_can_apply)
                     # newPost = Internship(company=request.user, title='title', place='place', duration='duration', stipend='stipend', apply_by='apply_by', no_of_openings='no_of_openings', perks='perks', skills='skills', about_internship='about_internship', who_can_apply='who_can_apply')
                     newPost.save()
+                    print("saved in database")
+                    recommend(skills, std,newPost.id)
                     return redirect(home)
             except:
                 print('4 ', request.user, request.user.company.isCompany, request.user.is_authenticated)
@@ -220,6 +233,24 @@ def acceptStd(request, post_id, a_id):
 
     internship.status = "Accept"
     internship.save()
+    #send mail to the accpeted students
+
+    name = internship.student_name
+    font = ImageFont.truetype('arial.ttf', 60)
+    img = Image.open('C:/Users/asus/Downloads/certificate.jpg')
+    draw = ImageDraw.Draw(img)
+    draw.text(xy=(725, 760), text='{}'.format(name), fill=(0, 0, 0), font=font)
+    img.save('{}.jpg'.format(name))
+
+    #send confirmation mail and certificate
+    to=internship.student_email
+    send_mail(
+        "congrats",
+        'The internship u hv applied have accepted ur application',
+        'simplyintern08@gmail.com',
+        [to],
+        fail_silently=False,
+    )
 
     return redirect('post-detail', post_id = post_id)
 
@@ -231,3 +262,56 @@ def rejectStd(request, post_id, a_id):
     internship.save()
 
     return redirect('post-detail', post_id = post_id)
+
+
+
+
+
+def Jaccard(x, y):
+    """returns the jaccard similarity between two lists """
+    intersection_cardinality = len(set.intersection(*[set(x), set(y)]))
+    union_cardinality = len(set.union(*[set(x), set(y)]))
+    return intersection_cardinality / float(union_cardinality)
+
+
+
+from django.core.mail import EmailMessage
+from django.conf import settings
+from django.template.loader import render_to_string
+
+
+
+def recommend(cmp_skills,std,id):
+    print("recommendation!!!!!----------------------")
+
+
+
+
+    print("company skills : " ,cmp_skills)
+    x = list(cmp_skills)
+    for i in std:
+        print(i.name)
+        res = i.resume
+        print("student skills:",res.skills)
+        y = list(res.skills)
+        ans = Jaccard(x, y)
+        print("ans:",ans)
+        url_str="http://127.0.0.1:8000/internships/detail/"
+        url_str=url_str+str(id)
+
+        if ans >0.5:
+            template = render_to_string('email_template.html', {'name':i.name,'link':url_str})
+            email=EmailMessage(
+                'Internship recommendation',
+                template,
+                settings.EMAIL_HOST_USER,
+                [i.email],
+            )
+            email.fail_slently=False
+            email.send()
+
+            print("successfully emailed")
+        else:
+            pass
+
+
