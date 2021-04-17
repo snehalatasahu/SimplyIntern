@@ -134,6 +134,9 @@ def profileEdit(request):
         if 'image' in request.FILES:
             std.resume.pic = request.FILES['image']  
 
+        if 'resume_file' in request.FILES:
+            std.resume.resume_file = request.FILES['resume_file']
+
         std.resume.mob = request.POST.get('mob')
         std.resume.address = request.POST.get('address')
         std.resume.skills = request.POST.get('skills')
@@ -151,17 +154,22 @@ def profileEdit(request):
 def dashboard(request):
     return render(request, 'StudentDashboard.html')
 
-
+@login_required
 def detail(request, post_id):
-    std = Student.objects.get(email=request.user.student.email)
-    post = Internship.objects.get(id=post_id)
+    if (request.user.student.isStudent == True):
+        std = Student.objects.get(email=request.user.student.email)
+        post = Internship.objects.get(id=post_id)
 
-    status = InternshipAppliedDB.objects.filter(internship_id=post_id, student_id=std.id)
+        status = InternshipAppliedDB.objects.filter(internship_id=post_id, student_id=std.id)
 
-    print("status: ", len(status))
+        print("status: ", len(status))
 
-    return render(request, 'StudentCompanyViewDetails.html', {'post': post, 'student': std, 'status': len(status)})
+        return render(request, 'StudentCompanyViewDetails.html',
+                      {'post': post, 'student': std, 'status': len(status)})
 
+    else:
+        messages.info(request, 'Please sign in as a student')
+        return redirect(auth_student)
 
 
 
@@ -190,7 +198,7 @@ def internshipApplied(request, post_id):
     print("the skills of the company internship are: ",y)
 
     ans = Jaccard(x, y)
-    matching=ans
+    matching=ans*100;
 
 
     status = "pending"

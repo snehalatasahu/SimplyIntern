@@ -13,8 +13,6 @@ import os
 from django.core.mail import EmailMultiAlternatives
 
 
-
-
 from django.core.mail import send_mail
  
  
@@ -143,25 +141,11 @@ def new_post(request):
             except:
                 print('4 ', request.user, request.user.company.isCompany, request.user.is_authenticated)
                 return redirect(auth_company)
-            # company = models.ForeignKey( 'Company' , on_delete=models.CASCADE)
             
 
         else:
             print('4 ', request.user, request.user.company.isCompany, request.user.is_authenticated)
             return redirect(auth_company)
-        # title = request.POST.get('title')
-        # place = 'bbsr'
-        # duration = '2 Months'
-        # stipend = request.POST.get('stipend')
-        # # apply_by = request.POST.get('apply_by') 
-        # no_of_openings =  request.POST.get('no_of_openings')
-        # perks = request.POST.get('perks')
-        # skills = request.POST.get('skills')
-        # about_internship = request.POST.get('about_internship')
-        # who_can_apply = request.POST.get('who_can_apply')
-
-        # newPost = Internship(title=title, place=place, duration=duration, stipend=stipend, no_of_openings=no_of_openings, perks=perks, skills=skills, about_internship=about_internship, who_can_apply=who_can_apply)
-        # newPost.save()
 
     return render(request,'CompanyInternshipForm.html')
     
@@ -275,10 +259,9 @@ def Jaccard(x, y):
 
 
 
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMessage, send_mail
 from django.conf import settings
 from django.template.loader import render_to_string
-
 
 
 def recommend(cmp_skills,std,id):
@@ -300,18 +283,29 @@ def recommend(cmp_skills,std,id):
         url_str=url_str+str(id)
 
         if ans >0.5:
-            template = render_to_string('email_template.html', {'name':i.name,'link':url_str})
-            email=EmailMessage(
+            template_txt = render_to_string('email_template.html', {'name':i.name,'link':url_str})
+            template_html = render_to_string('email_template.html', {'name': i.name, 'link': url_str})
+
+            email=send_mail(
                 'Internship recommendation',
-                template,
+                template_txt,
                 settings.EMAIL_HOST_USER,
                 [i.email],
+                html_message = template_html,
             )
-            email.fail_slently=False
-            email.send()
+            # email.fail_slently=False
+            # email.send()
+
+
+            # -------------------------------
+
 
             print("successfully emailed")
         else:
             pass
 
 
+def std_profile(request, std_id):
+    std = Student.objects.get(id = std_id)
+
+    return render(request, 'StdProfile.html', {'std': std})

@@ -24,6 +24,7 @@ class Resume(models.Model):
     college = models.CharField(blank=True, null=True, max_length=128)
     grad_year = models.CharField(blank=True, null=True, max_length=10)
     cgpa = models.CharField(blank=True, null=True, max_length=5)
+    resume_file = models.FileField(upload_to="student/resume/", blank=True, null=True)
 
     def __str__(self):
         return self.student.name

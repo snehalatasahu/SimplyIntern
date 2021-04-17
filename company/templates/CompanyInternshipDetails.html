@@ -162,7 +162,9 @@
                             </p>
                         
                             <ul class="ml-4">
-                                {{post.about_internship}}
+                                <li>
+                                    {{post.about_internship}}
+                                </li>
                             </ul>
                         </div>
 
@@ -176,7 +178,9 @@
                         </p>
                     
                         <ul class="ml-4">
-                            {{post.who_can_apply}}
+                            <li>
+                                {{post.who_can_apply}}
+                            </li>
                         </ul>
                     </div>
 
@@ -227,7 +231,7 @@
                             <td>{{ a.student_email }}</td>
                             <td>{{ a.student_mob }}</td>
                             <td>{{ a.matching }}%</td>
-                            <td><a href="#" style="text-decoration: none;">View Resume</a></td>
+                            <td><a href="{% url 'student-profile' a.student_id %}" style="text-decoration: none;">View Resume</a></td>
                             <td>
                                 {% if a.status == "Accept" %}
                                     <a class="btn btn-success" style="padding: 4px; font-size: 15;" href="{% url 'acceptStd' post.id a.id %}"> Accepted </a>
