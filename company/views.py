@@ -211,21 +211,26 @@ def post_detail(request, post_id):
 
     return render(request, 'CompanyInternshipDetails.html',{'post': post, 'company': comp, 'applied':applied})
 
-
 def acceptStd(request, post_id, a_id):
     internship = InternshipAppliedDB.objects.get(id = a_id)
 
     internship.status = "Accept"
     internship.save()
     #send mail to the accpeted students
-
+    post=Internship.objects.get(id=post_id)
+    #got the company name and position
+    print(post.title)
+    print(post.company)
     name = internship.student_name
     font = ImageFont.truetype('arial.ttf', 60)
-    img = Image.open('C:/Users/asus/Downloads/certificate.jpg')
+    img = Image.open('company/static/images/certificate.jpeg')
     draw = ImageDraw.Draw(img)
-    draw.text(xy=(725, 760), text='{}'.format(name), fill=(0, 0, 0), font=font)
-    img.save('{}.jpg'.format(name))
-
+    draw.text(xy=(403, 421), text='{}'.format(name), fill=(0, 0, 0), font=font)
+    draw.text(xy=(785, 500), text='{}'.format(post.title), fill=(0, 0, 0), font=ImageFont.truetype('arial.ttf', 25))
+    draw.text(xy=(154, 649), text='{}'.format(post.company), fill=(0, 0, 0), font=font)
+    img_name=name+post.title
+    img.save('{}.png'.format(img_name))
+    print(img)
     #send confirmation mail and certificate
     to=internship.student_email
     send_mail(
@@ -237,7 +242,6 @@ def acceptStd(request, post_id, a_id):
     )
 
     return redirect('post-detail', post_id = post_id)
-
 
 def rejectStd(request, post_id, a_id):
     internship = InternshipAppliedDB.objects.get(id=a_id)
