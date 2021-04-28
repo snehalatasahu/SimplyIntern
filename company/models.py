@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from student.models import Student
+
 
 # Create your models here.
 class Company(models.Model):
@@ -48,7 +50,7 @@ class Profile(models.Model):
 
 class Internship(models.Model):
     objects = models.Manager()
-    company = models.ForeignKey( 'Company' , on_delete=models.CASCADE)
+    company = models.ForeignKey( 'Company' , related_name="internships", on_delete=models.CASCADE)
     title = models.CharField(max_length=128)
     place = models.CharField(max_length=128)
     duration = models.CharField(max_length=128)
@@ -59,7 +61,8 @@ class Internship(models.Model):
     skills = models.CharField(max_length=128)
     about_internship = models.TextField()
     who_can_apply = models.TextField()
-    
+    no_of_applicants = models.IntegerField(default=0)
+   
    
 
     def __str__(self):
@@ -73,8 +76,10 @@ class Internship(models.Model):
 
 
 class InternshipAppliedDB(models.Model):
-    id = models.AutoField(primary_key=True)
-    internship_id = models.IntegerField(null=False)
+    # id = models.AutoField(primary_key=True)
+    internship = models.ForeignKey( 'Internship' , related_name="appliedInternship", on_delete=models.CASCADE)
+    # student = models.ForeignKey( 'Student' , related_name="appliedStudent", on_delete=models.CASCADE)
+    internshipkey = models.IntegerField(null=False, default=12)
     student_id = models.IntegerField(null=False)
 
     student_name = models.CharField(default="", max_length=128)
@@ -84,5 +89,7 @@ class InternshipAppliedDB(models.Model):
     matching = models.DecimalField(default=True, null=True, max_digits=5, decimal_places=2)
     status = models.CharField(max_length=30, default="pending")
 
+    applied_on = models.DateField(auto_now_add=True)
+
     def __str__(self):
-        return str(self.internship_id)
+        return str(self.internship.title)

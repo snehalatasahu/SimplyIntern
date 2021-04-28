@@ -339,3 +339,8 @@ section .containerBox.active .signinBx .imgBx {
 .closebtn:hover {
   color: black;
 }
+
+.mailsent{
+  text-align: center !important;
+  padding-top: 50px !important;
+}

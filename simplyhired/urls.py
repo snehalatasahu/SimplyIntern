@@ -22,9 +22,9 @@ from django.contrib.auth.views import LoginView, LogoutView
 
 urlpatterns = [
     path('', include('student.urls')),
-    path('cmp/', include('company.urls')),
-    path('logout', LogoutView.as_view(), {'next_page': '/'}, name='logout'), 
     path('admin/', admin.site.urls),
+    path('cmp/', include('company.urls')),
+    path('logout', LogoutView.as_view(), {'next_page': '/'}, name='logout'),
 ]
 if settings.DEBUG:
         urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

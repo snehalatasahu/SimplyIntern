@@ -2,12 +2,15 @@ from django.db import models
 from django.contrib.auth.models import User
 from jsonfield import JSONField
 
+
 # Create your models here.
 class Student(models.Model):
     objects = models.Manager()
     user=models.OneToOneField('auth.user',default="", on_delete=models.CASCADE)
     name = models.CharField(default="", max_length=128)
+    auth_token = models.CharField(default="", max_length=128)
     email = models.EmailField()
+    isVerified = models.BooleanField(default=False)
     isStudent = models.BooleanField(default=True)
 
     def __str__(self):
